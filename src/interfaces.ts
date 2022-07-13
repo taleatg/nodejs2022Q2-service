@@ -1,10 +1,15 @@
-export interface User {
+export interface IUser {
   id: string;
   login: string;
   password: string;
   version: number;
   createdAt: number;
   updatedAt: number;
+}
+
+export interface UserUpdate {
+  oldPassword: string;
+  newPassword: string;
 }
 
 export interface Artist {
