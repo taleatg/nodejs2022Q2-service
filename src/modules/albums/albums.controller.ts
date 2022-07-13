@@ -23,7 +23,7 @@ export class AlbumsController {
   }
 
   @Get(':id')
-  getAlbumById(@Param('id') id) {
+  getAlbumById(@Param('id', new ParseUUIDPipe({ version: '4' })) id) {
     return this.albumService.getAlbumById(id);
   }
 
@@ -34,7 +34,9 @@ export class AlbumsController {
   }
 
   @Put(':id')
-  updateAlbum(@Param('id') id, @Body() album: Album): Album {
+  updateAlbum(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id,
+    @Body() album: Album): Album {
     return this.albumService.updateAlbum(id, album);
   }
 

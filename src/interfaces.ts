@@ -7,11 +7,6 @@ export interface IUser {
   updatedAt: number;
 }
 
-export interface UserUpdate {
-  oldPassword: string;
-  newPassword: string;
-}
-
 export interface Artist {
   id: string;
   name: string;

@@ -1,17 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { IUser, UserUpdate } from '../../interfaces';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common';
+import { IUser } from '../../interfaces';
 import { uuid } from 'uuidv4';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UsersService {
-    private users = [{
-      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "login": "TestUser",
-      "version": 1,
-      "createdAt": 1655000000,
-      "updatedAt": 1655000000
-    }];
+    private users: IUser[] = [];
 
   getUsers() {
     return this.users;
@@ -41,12 +40,21 @@ export class UsersService {
     return newUser;
   }
 
-  updateUser(id: string, user: UserUpdate): IUser {
+  updateUser(id: string, passwords: UpdatePasswordDto) {
     const index = this.users.findIndex(user => user.id === id);
+
+    if (index === -1) {
+      throw new NotFoundException('User not found.');
+    }
+
+    if ( this.users[index]?.password !== passwords.oldPassword ) {
+      throw new ForbiddenException('Should correctly update user password match');
+    }
+
 
     const updatingUser: IUser = {
       login:  this.users[index].login,
-      password: user.newPassword,
+      password: passwords.newPassword,
       version: this.users[index].version + 1,
       createdAt: this.users[index].createdAt,
       updatedAt: new Date().getTime(),
@@ -59,7 +67,7 @@ export class UsersService {
   }
 
   deleteUser(id: string) {
-    const index = this.users.findIndex(user => user.id ===id);
+    const index = this.users.findIndex(user => user.id === id);
 
     if (index === -1) {
       throw new NotFoundException('User not found.');

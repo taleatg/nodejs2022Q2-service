@@ -13,7 +13,7 @@ export class ArtistsController {
   }
 
   @Get(':id')
-  getArtistById(@Param('id') id) {
+  getArtistById(@Param('id', new ParseUUIDPipe({ version: '4' })) id) {
     return this.artistService.getArtistById(id);
   }
 
@@ -24,7 +24,9 @@ export class ArtistsController {
   }
 
   @Put(':id')
-  updateArtist(@Param('id') id, @Body() artist: Artist): Artist {
+  updateArtist(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id,
+    @Body() artist: Artist): Artist {
     return this.artistService.updateArtist(id, artist);
   }
 

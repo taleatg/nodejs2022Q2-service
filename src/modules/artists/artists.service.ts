@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Artist } from '../../interfaces';
 import { CreateArtistDto } from './dto/create-artists.dto';
 import { uuid } from 'uuidv4';
@@ -37,12 +37,21 @@ export class ArtistsService {
   }
 
   updateArtist(id: string, artist: Artist): Artist {
+    const index = this.artists.findIndex(artist => artist.id === id);
+
+    if (!this.artists[index]) {
+      throw new NotFoundException('Artist not found.');
+    }
+
+    if (typeof artist.name !== 'string' || typeof artist.grammy !== 'boolean') {
+      throw new BadRequestException('Request body does not contain required fields');
+    }
+
     const updatingArtist: Artist = {
       ...artist,
       id
     }
 
-    const index = this.artists.findIndex(artist => artist.id === id);
     this.artists[index] = updatingArtist;
 
     return updatingArtist;

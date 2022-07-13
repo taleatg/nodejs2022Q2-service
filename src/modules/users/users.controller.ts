@@ -13,8 +13,8 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UserUpdate } from '../../interfaces';
 import { User } from '../albums/user';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Controller('user')
 export class UsersController {
@@ -25,12 +25,11 @@ export class UsersController {
   getUsers() {
     const allUsers = this.userService.getUsers();
     return allUsers.map(user => new User({ ...user }));
-    // return this.userService.getUsers();
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
-  getUserById(@Param('id') id) {
+  getUserById(@Param('id', new ParseUUIDPipe({ version: '4' })) id) {
     return new User({
       ...this.userService.getUserById(id),
     });
@@ -47,9 +46,11 @@ export class UsersController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Put(':id')
-  updateUser(@Param('id') id, @Body() user: UserUpdate ): User {
+  updateUser(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id,
+    @Body() passwords: UpdatePasswordDto ): User {
     return new User({
-      ...this.userService.updateUser(id, user),
+      ...this.userService.updateUser(id, passwords),
     })
   }
 

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Album } from '../../interfaces';
 import { uuid } from 'uuidv4';
 import { CreateAlbumDto } from './dto/create-album.dto';
@@ -28,7 +28,9 @@ export class AlbumsService {
 
   createAlbum(album: CreateAlbumDto): Album {
     const newAlbum: Album = {
-      ...album,
+      name: album.name,
+      year: album.year,
+      artistId: album.artistId || null,
       id: uuid(),
     }
 
@@ -37,20 +39,29 @@ export class AlbumsService {
     return newAlbum;
   }
 
-  updateAlbum(id: string, album: Album): Album {
+  updateAlbum(id: string, album: CreateAlbumDto): Album {
+    const index = this.albums.findIndex(album => album.id === id);
+
+    if (!this.albums[index]) {
+      throw new NotFoundException('Album not found.');
+    }
+
+    if (typeof album.name !== 'string' || typeof album.year !== 'number') {
+      throw new BadRequestException('Request body does not contain required fields');
+    }
+
     const updatingAlbum: Album = {
       ...album,
       id
     }
 
-    const index = this.albums.findIndex(album => album.id === id);
     this.albums[index] = updatingAlbum;
 
     return updatingAlbum;
   }
 
   deleteAlbum(id: string) {
-    const index = this.albums.findIndex(album => album.id ===id);
+    const index = this.albums.findIndex(album => album.id === id);
 
     if (index === -1) {
       throw new NotFoundException('Album not found.');
