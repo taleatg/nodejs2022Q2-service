@@ -39,13 +39,15 @@ export class FavoritesService {
   }
 
   addArtistToFavorites(id: string) {
-    const index = ArtistsService.artists.findIndex(artist => artist.id === id);
+    if (FavoritesService.favorites.artists.findIndex(artist => artist === id) === -1) {
+      const index = ArtistsService.artists.findIndex(artist => artist.id === id);
 
-    if (index === -1) {
-      throw new UnprocessableEntityException('Artist doesn\'t exist')
+      if (index === -1) {
+        throw new UnprocessableEntityException('Artist doesn\'t exist')
+      }
+
+      FavoritesService.favorites.artists.push(id);
     }
-
-    FavoritesService.favorites.artists.push(id);
   }
 
   deleteArtistFromFavorites(artistId: string) {
@@ -59,12 +61,14 @@ export class FavoritesService {
   }
 
   addAlbumToFavorites(id: string) {
-    const index = AlbumsService.albums.findIndex(album => album.id === id);
+    if (FavoritesService.favorites.albums.findIndex(album => album === id) === -1) {
+      const index = AlbumsService.albums.findIndex(album => album.id === id);
 
-    if (index === -1) {
-      throw new UnprocessableEntityException('Album doesn\'t exist')
+      if (index === -1) {
+        throw new UnprocessableEntityException('Album doesn\'t exist')
+      }
+      FavoritesService.favorites.albums.push(id);
     }
-    FavoritesService.favorites.albums.push(id);
   }
 
   deleteAlbumFromFavorites(albumId: string) {
@@ -78,13 +82,15 @@ export class FavoritesService {
   }
 
   addTrackToFavorites(id: string) {
-    const index = TracksService.tracks.findIndex(track => track.id === id);
+    if (FavoritesService.favorites.tracks.findIndex(track => track === id) === -1) {
+      const index = TracksService.tracks.findIndex(track => track.id === id);
 
-    if (index === -1) {
-      throw new UnprocessableEntityException('Track doesn\'t exist')
+      if (index === -1) {
+        throw new UnprocessableEntityException('Track doesn\'t exist')
+      }
+
+      FavoritesService.favorites.tracks.push(id);
     }
-
-    FavoritesService.favorites.tracks.push(id);
   }
 
   deleteTrackFromFavorites(trackId: string) {
