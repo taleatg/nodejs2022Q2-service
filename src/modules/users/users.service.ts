@@ -10,14 +10,18 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UsersService {
-    private users: IUser[] = [];
+  private static users: IUser[];
+
+  constructor() {
+    UsersService.users = [];
+  }
 
   getUsers() {
-    return this.users;
+    return UsersService.users;
   }
 
   getUserById(id: string) {
-    const user = this.users.find(user => user.id === id);
+    const user = UsersService.users.find(user => user.id === id);
 
     if (!user) {
       throw new NotFoundException('User not found.');
@@ -35,44 +39,44 @@ export class UsersService {
       id: uuid(),
     }
 
-    this.users.push(newUser);
+    UsersService.users.push(newUser);
 
     return newUser;
   }
 
   updateUser(id: string, passwords: UpdatePasswordDto) {
-    const index = this.users.findIndex(user => user.id === id);
+    const index = UsersService.users.findIndex(user => user.id === id);
 
     if (index === -1) {
       throw new NotFoundException('User not found.');
     }
 
-    if ( this.users[index]?.password !== passwords.oldPassword ) {
+    if ( UsersService.users[index]?.password !== passwords.oldPassword ) {
       throw new ForbiddenException('Should correctly update user password match');
     }
 
 
     const updatingUser: IUser = {
-      login:  this.users[index].login,
+      login:  UsersService.users[index].login,
       password: passwords.newPassword,
-      version: this.users[index].version + 1,
-      createdAt: this.users[index].createdAt,
+      version: UsersService.users[index].version + 1,
+      createdAt: UsersService.users[index].createdAt,
       updatedAt: new Date().getTime(),
       id
     }
 
-    this.users[index] = updatingUser;
+    UsersService.users[index] = updatingUser;
 
     return updatingUser;
   }
 
   deleteUser(id: string) {
-    const index = this.users.findIndex(user => user.id === id);
+    const index = UsersService.users.findIndex(user => user.id === id);
 
     if (index === -1) {
       throw new NotFoundException('User not found.');
     }
 
-    this.users.splice(index, 1);
+    UsersService.users.splice(index, 1);
   }
 }

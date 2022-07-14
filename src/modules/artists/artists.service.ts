@@ -2,21 +2,24 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { Artist } from '../../interfaces';
 import { CreateArtistDto } from './dto/create-artists.dto';
 import { uuid } from 'uuidv4';
+import { AlbumsService } from '../albums/albums.service';
+import { TracksService } from '../tracks/tracks.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class ArtistsService {
-  private artists = [{
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "name": "Freddie Mercury",
-    "grammy": false
-  }];
+  static artists: Artist[];
+
+  constructor() {
+    ArtistsService.artists = [];
+  }
 
   getArtists() {
-    return this.artists;
+    return ArtistsService.artists;
   }
 
   getArtistById(id: string) {
-    const artist: Artist = this.artists.find(artist => artist.id === id);
+    const artist: Artist = ArtistsService.artists.find(artist => artist.id === id);
 
     if (!artist) {
       throw new NotFoundException('Artist not found.');
@@ -31,15 +34,15 @@ export class ArtistsService {
       id: uuid(),
     }
 
-    this.artists.push(newArtist);
+    ArtistsService.artists.push(newArtist);
 
     return newArtist;
   }
 
   updateArtist(id: string, artist: Artist): Artist {
-    const index = this.artists.findIndex(artist => artist.id === id);
+    const index = ArtistsService.artists.findIndex(artist => artist.id === id);
 
-    if (!this.artists[index]) {
+    if (!ArtistsService.artists[index]) {
       throw new NotFoundException('Artist not found.');
     }
 
@@ -52,18 +55,40 @@ export class ArtistsService {
       id
     }
 
-    this.artists[index] = updatingArtist;
+    ArtistsService.artists[index] = updatingArtist;
 
     return updatingArtist;
   }
 
   deleteArtist(id: string) {
-    const index = this.artists.findIndex(artist => artist.id ===id);
+    const index = ArtistsService.artists.findIndex(artist => artist.id ===id);
 
     if (index === -1) {
       throw new NotFoundException('Artist not found.');
     }
 
-    this.artists.splice(index, 1);
+    ArtistsService.artists.splice(index, 1);
+    this.deleteEverywhere(id);
+  }
+
+  deleteEverywhere(id: string) {
+    FavoritesService.favorites.artists.map((artist, index) => {
+
+      if (artist === id) {
+        FavoritesService.favorites.artists.splice(index, 1);
+      }
+    });
+
+    AlbumsService.albums.map(album => {
+      if (album.artistId === id) {
+        album.artistId = null;
+      }
+    });
+
+    TracksService.tracks.map(track => {
+      if (track.artistId === id) {
+        track.artistId = null;
+      }
+    });
   }
 }

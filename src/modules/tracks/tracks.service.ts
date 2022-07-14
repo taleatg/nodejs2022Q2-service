@@ -2,17 +2,22 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { Track } from '../../interfaces';
 import { uuid } from 'uuidv4';
 import { CreateTrackDto } from './dto/create-tracks.dto';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class TracksService {
-  private tracks = [];
+  static tracks: Track[];
+
+  constructor() {
+    TracksService.tracks = [];
+  }
 
   getTracks() {
-    return this.tracks;
+    return TracksService.tracks;
   }
 
   getTrackById(id: string) {
-    const track: Track = this.tracks.find(track => track.id === id);
+    const track: Track = TracksService.tracks.find(track => track.id === id);
 
     if (!track) {
       throw new NotFoundException('Track not found.');
@@ -30,15 +35,15 @@ export class TracksService {
       id: uuid(),
     }
 
-    this.tracks.push(newTrack);
+    TracksService.tracks.push(newTrack);
 
     return newTrack;
   }
 
   updateTrack(id: string, track: CreateTrackDto): Track {
-    const index = this.tracks.findIndex(track => track.id === id);
+    const index = TracksService.tracks.findIndex(track => track.id === id);
 
-    if (!this.tracks[index]) {
+    if (!TracksService.tracks[index]) {
       throw new NotFoundException('Track not found.');
     }
 
@@ -51,18 +56,27 @@ export class TracksService {
       id
     }
 
-    this.tracks[index] = updatingTrack;
+    TracksService.tracks[index] = updatingTrack;
 
     return updatingTrack;
   }
 
   deleteTrack(id: string) {
-    const index = this.tracks.findIndex(track => track.id === id);
+    const index = TracksService.tracks.findIndex(track => track.id === id);
 
     if (index === -1) {
       throw new NotFoundException('Track not found.');
     }
 
-    this.tracks.splice(index, 1);
+    TracksService.tracks.splice(index, 1);
+    this.deleteEverywhere(id);
+  }
+
+  deleteEverywhere(id: string) {
+    FavoritesService.favorites.tracks.map((track, index) => {
+      if (track === id) {
+        FavoritesService.favorites.tracks.splice(index, 1);
+      }
+    })
   }
 }

@@ -2,22 +2,23 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { Album } from '../../interfaces';
 import { uuid } from 'uuidv4';
 import { CreateAlbumDto } from './dto/create-album.dto';
+import { TracksService } from '../tracks/tracks.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class AlbumsService {
-    private albums = [{
-      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "name": "Test",
-      "year": 1991,
-      "artistId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-    }];
+  static albums: Album[];
+
+  constructor() {
+    AlbumsService.albums = [];
+  }
 
   getAlbums() {
-    return this.albums;
+    return AlbumsService.albums;
   }
 
   getAlbumById(id: string) {
-    const album: Album = this.albums.find(album => album.id === id);
+    const album: Album = AlbumsService.albums.find(album => album.id === id);
 
     if (!album) {
       throw new NotFoundException('Album not found.');
@@ -34,15 +35,15 @@ export class AlbumsService {
       id: uuid(),
     }
 
-    this.albums.push(newAlbum);
+    AlbumsService.albums.push(newAlbum);
 
     return newAlbum;
   }
 
   updateAlbum(id: string, album: CreateAlbumDto): Album {
-    const index = this.albums.findIndex(album => album.id === id);
+    const index = AlbumsService.albums.findIndex(album => album.id === id);
 
-    if (!this.albums[index]) {
+    if (!AlbumsService.albums[index]) {
       throw new NotFoundException('Album not found.');
     }
 
@@ -55,18 +56,33 @@ export class AlbumsService {
       id
     }
 
-    this.albums[index] = updatingAlbum;
+    AlbumsService.albums[index] = updatingAlbum;
 
     return updatingAlbum;
   }
 
   deleteAlbum(id: string) {
-    const index = this.albums.findIndex(album => album.id === id);
+    const index = AlbumsService.albums.findIndex(album => album.id === id);
 
     if (index === -1) {
       throw new NotFoundException('Album not found.');
     }
 
-    this.albums.splice(index, 1);
+    AlbumsService.albums.splice(index, 1);
+    this.deleteEverywhere(id);
+  }
+
+  deleteEverywhere(id: string) {
+    FavoritesService.favorites.albums.map((album, index) => {
+      if (album === id) {
+        FavoritesService.favorites.albums.splice(index, 1);
+      }
+    });
+
+    TracksService.tracks.map(track => {
+      if (track.albumId === id) {
+        track.albumId = null;
+      }
+    });
   }
 }
