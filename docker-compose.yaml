@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  app:
+    container_name: rest-service
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PORT=${PORT}
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - .env
+    volumes:
+      - ./:/nodejs2022Q2-service
+      - ignore:/nodejs2022Q2-service/node_modules/
+volumes:
+  ignore:
