@@ -5,15 +5,44 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        - PORT=${PORT}
+      dockerfile: ./Dockerfile
     ports:
       - ${PORT}:${PORT}
     env_file:
       - .env
+    networks:
+      - postgres
+    depends_on:
+      - postgres
     volumes:
-      - ./:/nodejs2022Q2-service
-      - ignore:/nodejs2022Q2-service/node_modules/
+      - ./:/app
+      - ignore:/app/node_modules/
+
+  postgres:
+    container_name: postgres-service
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./src/db/Dockerfile
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: postgres:/var/lib/postgresql/data
+    networks:
+      - postgres
+    depends_on:
+      - postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+networks:
+  postgres:
+    driver: bridge
+
 volumes:
   ignore:

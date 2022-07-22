@@ -16,6 +16,12 @@ async function bootstrap() {
 
   SwaggerModule.setup('doc', app, document);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-  await app.listen(PORT);
+  await app.listen(PORT).then(() => {
+    console.log(`
+      🚀  Server is running!
+      🔉  Listening on port ${PORT}
+      📭  Start work at http://localhost:${PORT}/doc
+    `);
+  });
 }
 bootstrap();
