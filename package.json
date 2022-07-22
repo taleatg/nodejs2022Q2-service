@@ -18,7 +18,7 @@
     "test:auth": "cross-env TEST_MODE=auth jest --config ./test/jest-e2e.json",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "scan": "docker scan taleatg/rest-service"
+    "scan": "docker scan nodejs-service"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
